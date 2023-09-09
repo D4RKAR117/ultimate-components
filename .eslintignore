@@ -1,0 +1,6 @@
+!nx.json
+!*rc.json
+!*.json
+!package.json
+dist/
+docs/

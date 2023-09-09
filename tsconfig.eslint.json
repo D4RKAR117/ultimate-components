@@ -1,0 +1,4 @@
+{
+	"extends": "./tsconfig.json",
+	"include": ["utils/**/*.ts", "commitlint.config.cts", "stylelint.config.ts"]
+}

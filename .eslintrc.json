@@ -1,0 +1,27 @@
+{
+  "$schema": "https://json.schemastore.org/eslintrc",
+  "root": true,
+  "env": {
+    "es2021": true,
+    "node": true
+  },
+  "extends": [
+    "eslint:recommended",
+    "plugin:@typescript-eslint/recommended",
+    "plugin:prettier/recommended"
+  ],
+  "overrides": [],
+  "parserOptions": {
+    "parser": "@typescript-eslint/parser",
+    "ecmaVersion": "latest",
+    "sourceType": "module",
+    "project": [
+      "./tsconfig.json",
+      "./tsconfig.eslint.json",
+      "./packages/*/tsconfig.json",
+      "./packages/*/tsconfig.eslint.json"
+    ]
+  },
+  "plugins": ["@typescript-eslint"],
+  "rules": {}
+}

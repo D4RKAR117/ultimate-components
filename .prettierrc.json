@@ -1,0 +1,22 @@
+{
+    "$schema":"https://json.schemastore.org/prettierrc",
+    "singleQuote": true,
+    "semi": true,
+    "useTabs": true,
+    "tabWidth": 4,
+    "endOfLine": "lf",
+    "arrowParens": "avoid",
+    "printWidth": 120,
+	"jsxSingleQuote": true,
+	"jsxBracketSameLine": true,
+	"trailingComma": "es5",
+    "overrides": [
+        {
+            "files": "*.{yml,yaml}",
+            "options": {
+                "tabWidth": 4,
+                "useTabs": false
+            }
+        }
+    ]
+}

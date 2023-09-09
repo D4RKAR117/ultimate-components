@@ -1,0 +1,57 @@
+{
+	"name": "@d4rkar117/ultimate-components-workspace",
+	"private": true,
+	"version": "1.0.0",
+	"description": "Monorepo POC para los componentes mitosis",
+	"packageManager": "pnpm@8.7.0",
+	"engineStrict": true,
+	"engines": {
+		"node": ">=18.0.0",
+		"npm": ">=9.0.0",
+		"pnpm": ">=8.0.0"
+	},
+	"keywords": [
+		"mitosis",
+		"components",
+		"monorepo",
+		"react",
+		"vue",
+		"web-components"
+	],
+	"workspaces": [
+		"packages/*"
+	],
+	"author": "D4RKAR117",
+	"license": "LGPL-3.0-or-later",
+	"volta": {
+		"node": "18.17.1"
+	},
+	"devDependencies": {
+		"@commitlint/cli": "^17.7.1",
+		"@commitlint/config-conventional": "^17.7.0",
+		"@commitlint/cz-commitlint": "^17.7.1",
+		"@commitlint/format": "^17.4.4",
+		"@commitlint/types": "^17.4.4",
+		"@jscutlery/semver": "^3.1.0",
+		"@types/node": "^18.17.15",
+		"@typescript-eslint/eslint-plugin": "^6.6.0",
+		"@typescript-eslint/parser": "^6.6.0",
+		"commitizen": "^4.3.0",
+		"eslint": "^8.49.0",
+		"eslint-config-prettier": "^9.0.0",
+		"eslint-plugin-prettier": "^5.0.0",
+		"husky": "^8.0.3",
+		"nx": "^16.8.1",
+		"prettier": "^3.0.3",
+		"typescript": "^5.2.2"
+	},
+	"scripts": {
+		"commit": "cz",
+		"prepare": "husky install"
+	},
+	"config": {
+		"commitizen": {
+			"path": "@commitlint/cz-commitlint"
+		}
+	}
+}

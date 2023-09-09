@@ -1,0 +1,20 @@
+{
+	"$schema": "http://json.schemastore.org/tsconfig",
+	"compilerOptions": {
+		"noEmit": true,
+		"strict": true,
+		"allowJs": false,
+		"noUncheckedIndexedAccess": true,
+		"moduleResolution": "Bundler",
+		"esModuleInterop": true,
+		"skipLibCheck": true,
+		"isolatedModules": true,
+		"resolveJsonModule": true,
+		"strictNullChecks": true,
+		"emitDecoratorMetadata": true,
+		"experimentalDecorators": true,
+		"module": "ESNext",
+		"target": "ESNext",
+		"types": ["node"]
+	}
+}
