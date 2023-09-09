@@ -6,6 +6,11 @@
 	"types": "dist/index.d.ts",
 	"module": "dist/index.js",
 	"type": "module",
+	"repository": {
+		"type": "git",
+		"url": "git+https://github.com/d4rkar117/ultimate-components.git",
+		"directory": "packages/helpers"
+	},
 	"exports": {
 		".": {
 			"import": "./dist/index.js",
@@ -14,10 +19,16 @@
 		}
 	},
 	"scripts": {
-		"build": "tsup"
+		"build": "tsup",
+		"build:watch": "tsup --watch",
+		"lint:code": "eslint . --cache --cache-strategy content",
+		"lint:fix": "eslint --fix .",
+		"lint:types": "tsc --noEmit",
+		"lint": "concurrently -n code,types -c green,blue \"pnpm lint:code\" \"pnpm lint:types\""
 	},
 	"devDependencies": {
 		"autoprefixer": "^10.4.15",
+		"concurrently": "^8.2.1",
 		"cssnano": "^6.0.1",
 		"postcss": "^8.4.29",
 		"postcss-preset-env": "^9.1.3",
