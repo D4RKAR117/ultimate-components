@@ -1,5 +1,6 @@
 import type { Plugin } from '@builder.io/mitosis';
 import { MergeCssIntoMitosisComponent } from './css';
+import { IntegrateVModelWithComponent } from './vue';
 
 export type ProcessStyleOptions = {
 	/**
@@ -18,8 +19,18 @@ export type ProcessStyleOptions = {
 export const ProcessStylesPlugin: Plugin = (options: ProcessStyleOptions) => ({
 	json: {
 		pre(component) {
-			console.info('[Mitosis][Styles Import Plugin] Processing styles for component:', component.name);
+			console.info('[Mitosis Plugin][Styles Import Plugin] Processing styles for component:', component.name);
 			const final = MergeCssIntoMitosisComponent(component, options.path, options.shouldAppendCmpName);
+			return final;
+		},
+	},
+});
+
+export const AddVModelPlugin: Plugin = () => ({
+	json: {
+		post(component) {
+			console.info('[Mitosis Plugin][VModel Plugin] Adding vModel to component:', component.name);
+			const final = IntegrateVModelWithComponent(component);
 			return final;
 		},
 	},

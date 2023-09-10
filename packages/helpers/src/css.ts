@@ -2,7 +2,6 @@ import { compileString } from 'sass';
 import { readFileSync, type PathLike } from 'fs';
 import { resolve } from 'path';
 import { type MitosisComponent } from '@builder.io/mitosis';
-import { toPascalCase } from './utils';
 
 /**
  *  Loads a sass file and returns the css string
@@ -68,7 +67,7 @@ export const MergeCssIntoMitosisComponent = (
 	shouldAppendName = false
 ) => {
 	const prevCss = component.style || '';
-	const finalPath = shouldAppendName ? resolve(resolutionPath, toPascalCase(component.name)) : resolutionPath;
+	const finalPath = shouldAppendName ? resolve(resolutionPath, component.name) : resolutionPath;
 	const css = ExtractCssFromMitosisImports(component, finalPath);
 	component.imports = RemoveCssImportsFromMitosisComponent(component);
 
