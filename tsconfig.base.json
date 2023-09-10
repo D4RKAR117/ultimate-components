@@ -5,7 +5,7 @@
 		"strict": true,
 		"allowJs": false,
 		"noUncheckedIndexedAccess": true,
-		"moduleResolution": "Bundler",
+		"moduleResolution": "Node",
 		"esModuleInterop": true,
 		"skipLibCheck": true,
 		"isolatedModules": true,
