@@ -1,6 +1,6 @@
 import type { Plugin } from '@builder.io/mitosis';
 import { MergeCssIntoMitosisComponent } from './css';
-import { IntegrateVModelWithComponent } from './vue';
+import { IntegrateVModelWithComponent, ManageComponentVModelTypings } from './vue';
 
 export type ProcessStyleOptions = {
 	/**
@@ -16,6 +16,12 @@ export type ProcessStyleOptions = {
 	shouldAppendCmpName?: boolean;
 };
 
+/**
+ *  A plugin to handle style files imports
+ *
+ * @param options  The options for the plugin
+ * @returns  The plugin
+ */
 export const ProcessStylesPlugin: Plugin = (options: ProcessStyleOptions) => ({
 	json: {
 		pre(component) {
@@ -26,11 +32,19 @@ export const ProcessStylesPlugin: Plugin = (options: ProcessStyleOptions) => ({
 	},
 });
 
+/**
+ *  A plugin to add vModel support to components using the vModel metadata added to mitosis component.
+ *  Replaces the prop drilling callback with the vue event model
+ *  **This plugin is only for vue 3 output components that use composition api**
+ *
+ * @returns  The plugin
+ */
 export const AddVModelPlugin: Plugin = () => ({
 	json: {
 		post(component) {
 			console.info('[Mitosis Plugin][VModel Plugin] Adding vModel to component:', component.name);
-			const final = IntegrateVModelWithComponent(component);
+			let final = IntegrateVModelWithComponent(component);
+			final = ManageComponentVModelTypings(final);
 			return final;
 		},
 	},

@@ -129,3 +129,73 @@ export const IntegrateVModelWithComponent = (component: MitosisComponent) => {
 
 	return component;
 };
+
+/**
+ * Removes the event props from the typings of a mitosis component to avoid type access errors
+ *
+ * @param typings  The typings to remove props from
+ * @param propsToReplace  The props to remove from the typings
+ * @returns  The typings with the prop events removed
+ */
+export const HandlePropRemoval = (typings: string[], propsToReplace: string[]) => {
+	const matchRegex = new RegExp(`(${propsToReplace.join('|')})\\s?:\\s?(.*)`);
+	const filtered = typings.filter(line => line.match(matchRegex) === null);
+	return filtered;
+};
+
+/**
+ *  Finds the typings for the props of a mitosis component
+ *
+ * @param typeLines  The lines of the typings to find the props typings in
+ * @param nameOfPropRef  The name of the prop reference to find the typings for
+ * @returns  The typings for the prop reference
+ */
+export const FindPropTypings = (typeLines: string[], nameOfPropRef: string) => {
+	const propsTypeRegex = new RegExp(`(type|interface)\\s${nameOfPropRef}\\s(=|{)`);
+	const startIndex = typeLines.findIndex((line, index) => {
+		return line.match(propsTypeRegex) !== null ? index : -1;
+	});
+	if (startIndex === -1) return [];
+
+	let endIndex = startIndex + 1;
+	let openBraces = 1;
+
+	while (openBraces > 0 && endIndex < typeLines.length) {
+		const line = typeLines[endIndex];
+		openBraces += ((line && line.match(/{/g)) || []).length;
+		openBraces -= ((line && line.match(/}/g)) || []).length;
+		endIndex++;
+	}
+	const finalStartIndex = startIndex > 0 ? startIndex - 1 : startIndex;
+	const typings = typeLines.slice(finalStartIndex, endIndex);
+
+	return typings;
+};
+
+/**
+ * Removes the event props from the typings of a mitosis component to avoid type access errors
+ *
+ * @param component component to remove event props from typings
+ * @returns  the modified component with the event props removed from typings
+ */
+export const ManageComponentVModelTypings = (component: MitosisComponent) => {
+	const vModelMeta = GetVModelMeta(component);
+
+	const propsToRemove = vModelMeta.map(({ eventConfig }) => eventConfig.targetPropName);
+
+	const { types: typeLines, propsTypeRef } = component;
+
+	if (!typeLines || !propsTypeRef) return component;
+
+	console.info('[Mitosis Plugin][VModel Support Plugin] Removing event props from typings:', propsToRemove);
+
+	const propsPos = typeLines.findIndex(line => line.includes(propsTypeRef));
+	const filteredTypeLines = typeLines.at(propsPos)?.trim().split('\n');
+	const lines = FindPropTypings(filteredTypeLines || [], propsTypeRef);
+	const handledTypings = HandlePropRemoval(lines, propsToRemove).join('\n');
+	const finalTypings = [...typeLines.slice(0, propsPos), handledTypings, ...typeLines.slice(propsPos + 1)];
+
+	component.types = finalTypings;
+
+	return component;
+};
