@@ -21,8 +21,12 @@ interface Props {
   value: string;
   errorMessage?: string;
 }
+interface EmitEvents {
+  (e: "update:modelValue", val: string): void;
+}
 
 const props = defineProps<Props>();
+const emit = defineEmits<EmitEvents>();
 export default {
   name: "super-input-field",
 };

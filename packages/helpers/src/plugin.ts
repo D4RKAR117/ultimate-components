@@ -1,6 +1,11 @@
 import type { Plugin } from '@builder.io/mitosis';
 import { MergeCssIntoMitosisComponent } from './css';
-import { IntegrateVModelWithComponent, ManageComponentVModelTypings, AddDefinePropsToComponent } from './vue';
+import {
+	IntegrateVModelWithComponent,
+	ManageComponentVModelTypings,
+	AddDefinePropsToComponent,
+	AddDefineEmitsToComponent,
+} from './vue';
 
 export type ProcessStyleOptions = {
 	/**
@@ -52,7 +57,7 @@ export const AddVModelPlugin: Plugin = () => ({
 		pre(code, json) {
 			let final = code;
 			final = AddDefinePropsToComponent(final, json);
-
+			final = AddDefineEmitsToComponent(final, json);
 			return final;
 		},
 	},

@@ -172,6 +172,47 @@ export const FindPropTypings = (typeLines: string[], nameOfPropRef: string) => {
 	return typings;
 };
 
+export const CreateEmitTypings = (typings: string[], modelEvents: VModel[]) => {
+	// Given the typings of the props, create the typings for the emit events
+	// input will be the typings of the props and the props that will be handled as Events
+	// ie interface Props { name: string, age: number, onClick: (event: MouseEvent) => void, onUpdateD }
+	// output will be the typings for the emit events
+	// ie interface EmitEvents { (e: 'click', data: MouseEvent) => void }
+	// will use the modelEvents to get the name of the event and the props that is targeted by the event
+	// ie modelEvents = [{ modelValue: 'value', eventConfig: { targetPropName: 'onUpdateValue', vModelPropName: 'update:modelValue' } }]
+	// will return the typings for the emit events
+	// ie interface EmitEvents { (e: 'update:modelValue', data: string): void }
+	// where the target prop params are the params of the emit event
+
+	const InterfaceTemplate = `interface EmitEvents {  REPLACE_SLOT }`;
+
+	const emitTypings = modelEvents
+		.map(({ eventConfig }) => {
+			const { targetPropName, vModelPropName } = eventConfig;
+			const targetPropTypings = typings.find(line => line.includes(targetPropName));
+			if (!targetPropTypings) return '';
+			const matchRegex = new RegExp(`${targetPropName}\\s?:\\s?(.*)`);
+			const match = targetPropTypings.match(matchRegex);
+			if (!match) return null;
+			const [, params] = match;
+			if (!params) return null;
+			const paramsRegex = new RegExp(`\\((.*)\\)`);
+			const paramsMatch = params.match(paramsRegex);
+			if (!paramsMatch) return null;
+			const [, paramsStr] = paramsMatch;
+			if (!paramsStr) return null;
+			const paramsArr = paramsStr.split(',').map(param => param.trim());
+			const emitTyping = `(e: '${vModelPropName}',  ${paramsArr.join(', ')}): void`;
+			return emitTyping;
+		})
+		.filter(line => line !== null)
+		.join('\n ');
+
+	const finalTypings = InterfaceTemplate.replace('REPLACE_SLOT', emitTypings);
+
+	return finalTypings;
+};
+
 /**
  * Removes the event props from the typings of a mitosis component to avoid type access errors
  *
@@ -192,8 +233,13 @@ export const ManageComponentVModelTypings = (component: MitosisComponent) => {
 	const propsPos = typeLines.findIndex(line => line.includes(propsTypeRef));
 	const filteredTypeLines = typeLines.at(propsPos)?.trim().split('\n');
 	const lines = FindPropTypings(filteredTypeLines || [], propsTypeRef);
-	const handledTypings = HandlePropRemoval(lines, propsToRemove).join('\n');
-	const finalTypings = [...typeLines.slice(0, propsPos), handledTypings, ...typeLines.slice(propsPos + 1)];
+	const emitTypings = CreateEmitTypings(lines, vModelMeta);
+	const propTypings = HandlePropRemoval(lines, propsToRemove).join('\n');
+	const finalTypings = [
+		...typeLines.slice(0, propsPos),
+		`${propTypings}\n${emitTypings}`,
+		...typeLines.slice(propsPos + 1),
+	];
 
 	component.types = finalTypings;
 
@@ -237,7 +283,7 @@ export const AddDefinePropsStatement = (code: string, propsTypeRef: string) => {
 };
 
 /**
- * Adds a defineProps statement to a component to add typed props
+ * Adds a defineProps statement to a component to add typed props (Entry point for plugin)
  *
  * @param code  The code to add the defineProps statement to
  * @param component  The component to get the props type reference from
@@ -252,6 +298,46 @@ export const AddDefinePropsToComponent = (code: string, component: MitosisCompon
 	const newCode = AddDefinePropsStatement(removedDefaultPropsCode, propsTypeRef);
 
 	console.info('[Mitosis Plugin][VModel Support Plugin] Adding defineProps statement to component:', component.name);
+
+	return newCode;
+};
+
+/**
+ *  Adds a defineEmits statement to a component to add typed emit events
+ *
+ * @param code  The code to add the defineEmits statement to
+ * @returns  The modified code with the defineEmits statement added
+ */
+export const AddDefineEmitsStatement = (code: string) => {
+	// should add `const emit = defineEmits<EmitEvents>()` where EmitEvents is the name of the emit events interface
+	// should add right above the `export default` statement preserving existing whitespace or code above
+	const anchorPosRegex = new RegExp(/export\s+default\s+/);
+
+	const anchorPos = code.search(anchorPosRegex);
+	const defineEmitsStatement = `const emit = defineEmits<EmitEvents>();\n`;
+
+	// escape without adding defineEmits statement if the anchorPos is not found or there already is a defineEmits statement
+	if (anchorPos === -1 || code.includes('defineEmits')) return code;
+
+	const newCode = code.slice(0, anchorPos) + defineEmitsStatement + code.slice(anchorPos);
+
+	return newCode;
+};
+
+/**
+ *  Adds a defineEmits statement to a component to add typed emit events (Entry point for plugin)
+ *
+ * @param code code to add the defineEmits statement to
+ * @param component  The component to get the emit events interface from
+ * @returns  The modified code with the defineEmits statement added
+ */
+export const AddDefineEmitsToComponent = (code: string, component: MitosisComponent) => {
+	const { types: typeLines, propsTypeRef } = component;
+	if (!typeLines || !propsTypeRef) return code;
+
+	const newCode = AddDefineEmitsStatement(code);
+
+	console.info('[Mitosis Plugin][VModel Support Plugin] Adding defineEmits statement to component:', component.name);
 
 	return newCode;
 };
