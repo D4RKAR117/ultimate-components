@@ -1,0 +1,10 @@
+{
+	"$schema": "https://json.schemastore.org/eslintrc",
+	"extends": ["../../../.eslintrc.json", "plugin:@builder.io/mitosis/recommended"],
+	"parserOptions": {
+		"ecmaFeatures": {
+			"jsx": true
+		}
+	},
+	"plugins": ["@builder.io/mitosis"]
+}

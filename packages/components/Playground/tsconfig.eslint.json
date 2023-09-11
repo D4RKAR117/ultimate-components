@@ -1,0 +1,5 @@
+{
+	"extends": "./tsconfig.json",
+	"include": ["tsup.config.ts", "mitosis.config.cjs", "src/**/*.ts", "src/**/*.tsx"],
+	"exclude": ["dist"]
+}

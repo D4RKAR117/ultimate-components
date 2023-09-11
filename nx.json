@@ -4,8 +4,23 @@
 		"default": {
 			"runner": "nx/tasks-runners/default",
 			"options": {
+				"cacheableOperations": ["build", "lint", "compile"],
 				"parallel": 5
 			}
+		}
+	},
+	"targetDefaults": {
+		"lint": {
+			"dependsOn": ["^build"],
+			"outputs": ["{projectRoot}/.eslintcache", "{projectRoot}/.stylelintcache"]
+		},
+		"compile": {
+			"dependsOn": ["^build"],
+			"outputs": ["{projectRoot}/output"]
+		},
+		"build": {
+			"dependsOn": ["^build"],
+			"outputs": ["{projectRoot}/dist"]
 		}
 	},
 	"targetDependencies": {
