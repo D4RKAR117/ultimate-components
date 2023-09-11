@@ -1,6 +1,6 @@
 import type { Plugin } from '@builder.io/mitosis';
 import { MergeCssIntoMitosisComponent } from './css';
-import { IntegrateVModelWithComponent, ManageComponentVModelTypings } from './vue';
+import { IntegrateVModelWithComponent, ManageComponentVModelTypings, AddDefinePropsToComponent } from './vue';
 
 export type ProcessStyleOptions = {
 	/**
@@ -35,7 +35,7 @@ export const ProcessStylesPlugin: Plugin = (options: ProcessStyleOptions) => ({
 /**
  *  A plugin to add vModel support to components using the vModel metadata added to mitosis component.
  *  Replaces the prop drilling callback with the vue event model
- *  **This plugin is only for vue 3 output components that use composition api**
+ *  **This plugin is only for vue 3 output components that use composition api and typescript**
  *
  * @returns  The plugin
  */
@@ -46,6 +46,30 @@ export const AddVModelPlugin: Plugin = () => ({
 			let final = IntegrateVModelWithComponent(component);
 			final = ManageComponentVModelTypings(final);
 			return final;
+		},
+	},
+	code: {
+		pre(code, json) {
+			let final = code;
+			final = AddDefinePropsToComponent(final, json);
+
+			return final;
+		},
+	},
+});
+
+/**
+ *  Plugin to add typed props to components using the defineProps api
+ *  **This plugin is only for vue 3 output components that use composition api and typescript**
+ *
+ *  if you use the `AddVModelPlugin` plugin you do not need to use this plugin as it already adds typed props
+ *
+ * @returns The plugin
+ */
+export const AddTypedPropsPlugin: Plugin = () => ({
+	code: {
+		pre(code, json) {
+			return AddDefinePropsToComponent(code, json);
 		},
 	},
 });

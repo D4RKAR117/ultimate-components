@@ -199,3 +199,59 @@ export const ManageComponentVModelTypings = (component: MitosisComponent) => {
 
 	return component;
 };
+
+/**
+ * Removes the default props property from a component
+ *
+ * @param code  The code to remove the default props from
+ * @returns  The modified code with the default props property removed
+ */
+export const RemoveDefaultPropsFromCode = (code: string) => {
+	// regex to find 'props: [...]' inside the export default object
+	const propsRegex = new RegExp(/props\s?:\s?\[([\s\S]*?)\],?\s*/);
+	const newCode = code.replace(propsRegex, '');
+	return newCode;
+};
+
+/**
+ *  Adds a defineProps statement to a component to add typed props
+ *
+ * @param code  The code to add the defineProps statement to
+ * @param propsTypeRef  The name of the props type/interface to add to the defineProps statement
+ * @returns  The modified code with the defineProps statement added
+ */
+export const AddDefinePropsStatement = (code: string, propsTypeRef: string) => {
+	// should add `const props = defineProps<propsTypeRef>()` where propsTypeRef is the name of the props type/interface
+	// should add right above the `export default` statement preserving existing whitespace or code above
+	const anchorPosRegex = new RegExp(/export\s+default\s+/);
+
+	const anchorPos = code.search(anchorPosRegex);
+	const definePropsStatement = `const props = defineProps<${propsTypeRef}>();\n`;
+
+	// escape without adding defineProps statement if the anchorPos is not found or there already is a defineProps statement
+	if (anchorPos === -1 || code.includes('defineProps')) return code;
+
+	const newCode = code.slice(0, anchorPos) + definePropsStatement + code.slice(anchorPos);
+
+	return newCode;
+};
+
+/**
+ * Adds a defineProps statement to a component to add typed props
+ *
+ * @param code  The code to add the defineProps statement to
+ * @param component  The component to get the props type reference from
+ * @returns The modified code with the defineProps statement added
+ */
+export const AddDefinePropsToComponent = (code: string, component: MitosisComponent) => {
+	const { types: typeLines, propsTypeRef } = component;
+	if (!typeLines || !propsTypeRef) return code;
+
+	const removedDefaultPropsCode = RemoveDefaultPropsFromCode(code);
+
+	const newCode = AddDefinePropsStatement(removedDefaultPropsCode, propsTypeRef);
+
+	console.info('[Mitosis Plugin][VModel Support Plugin] Adding defineProps statement to component:', component.name);
+
+	return newCode;
+};
